@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta charset="utf-8">
+	<title>Cookie game</title>
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+ <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+	<script>
+
+var flag = true;
+var interval_id = null;
+var count_cookie_earned = 0;
+var offset = 250; //max temps additionnel
+var random_case_id = null;
+var current_level = 1;
+var win_point = 25;
+var lose_point = -10;
+var base_time = 500;
+var score = 0;
+
+function start_game(){
+	interval_id = window.setInterval('display_cookie()', base_time);
+}
+
+function stop_game(){
+	clearInterval(interval_id);
+}
+
+function display_cookie(){
+	number_case = 9;
+
+	if (flag){
+		random_case_id = Math.floor((Math.random()*number_case)+1);
+		//document.getElementById('cookie').removeAttribute('style');
+		image_offset = Math.floor((Math.random()*10)+1);
+		if (image_offset < 3)
+			image = '<img src="poo.png" onmousedown="check_element('+lose_point+');" />';
+		else
+			image = '<img src="cookie.gif" onmousedown="check_element('+win_point+');" />';
+
+		//insère l'image
+		document.getElementById(random_case_id).innerHTML = image;
+		flag = false;
+	}
+	else{
+		//document.getElementById('cookie').style = 'visibility:hidden';
+		document.getElementById(random_case_id).innerHTML = '';
+		flag = true;
+	}
+}
+
+function check_element(value){
+
+	count_cookie_earned += value;
+    score += count_cookie_earned;
+
+	set_value_timer_display();
+	show_progress_level();
+}
+
+function set_value_timer_display(){ //à chaque clic, on change le temps apparition cookie
+	$('#'+random_case_id).toggle('puff');
+	$('#'+random_case_id).toggle('puff');
+
+	if (count_cookie_earned < 0)
+		document.getElementById('score').style = 'color:red';
+	else
+		document.getElementById('score').style = 'color:green';
+
+	document.getElementById('score').innerHTML = 'Score : '+score;
+	console.log('catch it !');
+	clearInterval(interval_id);
+	random_additional_time = Math.floor((Math.random()*offset)+1);
+	interval_id = window.setInterval('display_cookie()', base_time+random_additional_time);
+}
+
+
+function show_progress_level(){
+
+	$(function() {
+	var progressbar = $( "#progress_bar" ),
+	progressLabel = $( ".progress-label" );
+	progressbar.progressbar({
+	value: false,
+	change: function() {
+	progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+	},
+	complete: function() {
+	progressLabel.text( "Complete!" );
+	set_level_game();
+	}
+	});
+
+	var val = progressbar.progressbar( "value" ) || 0;
+	progressbar.progressbar( "value", val + count_cookie_earned );
+	});
+}
+
+function set_level_game(){
+	count_cookie_earned = 0;
+	show_progress_level();
+	current_level++;
+
+    document.getElementById('display-level').innerHTML = 'Level : '+current_level;
+
+	if(current_level > 1){
+		lose_point-=10;
+		if(win_point>=10)
+			win_point-=5;
+		base_time -=75;
+	}
+
+}
+
+show_progress_level(); // à mettre dans une fonction load page
+</script>
+
+<style>
+
+#progress_bar{
+	background:#DBD5CB;
+	width:40%;
+	margin:auto;
+}
+
+.ui-progressbar {
+position: relative;
+}
+
+.progress-label {
+position: absolute;
+left: 50%;
+top: 4px;
+font-weight: bold;
+text-shadow: 1px 1px 0 #fff;
+}
+
+#display-level{
+position: absolute;
+left: 2%;
+top: 4px;
+font-weight: bold;
+text-shadow: 1px 1px 0 #fff;
+
+}
+
+#score{
+    position: absolute;
+    left: 20%;
+    top: 4px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+
+#area_game{
+	width:45%;
+	height:600px;
+	margin:auto;
+	border: 1px solid black;
+	text-align:center;
+}
+
+#area_game td{
+	border:1px solid black;
+	width:33%;
+	height:195px;
+}
+
+#area_game td p{
+	/*display:inline;*/
+	/*visibility:hidden;*/
+}
+
+#area_game td img{
+	display:inline;
+	/*visibility:hidden;*/
+}
+
+/*#area_game tr:nth-child(1) td:nth-child(1){
+	background:orange;
+}*/
+
+/*th{
+	font-size:2em;
+	height:50px;
+}*/
+
+
+</style>
+
+
+</head>
+
+<body>
+
+<input type="button" value="start" onclick="start_game()" />
+<input type="button" value="stop" onclick="stop_game()" />
+<div id="wrap">
+<p id="cookie" style="visibility:hidden">cookie</p>
+
+<div id="progress_bar">
+    <div id="display-level">Level 1</div>
+    <div id="score">Score : 0</div>
+    <div class="progress-label">0</div>
+</div>
+
+<br><br>
+<table id="area_game" >
+	<tr>
+	<th colspan="3" >Cookie game</th>
+	</tr>
+	<tr>
+		<td><p id="1"></p></td>
+		<td><p id="2"></p></td>
+		<td><p id="3"></p></td>
+	</tr>
+	<tr>
+		<td><p id="4"></p></td>
+		<td><p id="5"></p></td>
+		<td><p id="6"></p></td>
+	</tr>
+	<tr>
+		<td><p id="7"></p></td>
+		<td><p id="8"></p></td>
+		<td><p id="9"></p></td>
+	</tr>
+</table>
+</div>
+<br><br>
+
+</body>
+
+</html>
